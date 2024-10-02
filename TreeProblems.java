@@ -26,8 +26,9 @@ public class TreeProblems {
     // This can be done numerous ways, but once such will only that
     // *several* lines of code. Hint: create two temporary TreeSets and utilize the
     // methods retainAll(), addAll(), and removeAll(). But in the end, get something to work.
-
-    return setA;
+    Set<Integer> c = new TreeSet<>(){{addAll(setA);addAll(setB);}}; // Creates a TreeSet and adds all of setA and setB into it
+    c.removeIf(i -> setA.contains(i) && setB.contains(i)); // removes everything that is contained in both setA and setB
+    return c;
   }
 
 
@@ -41,7 +42,7 @@ public class TreeProblems {
   public static void removeEven(Map<Integer, String> treeMap) {
 
     // INSERT CODE HERE.
-
+    treeMap.keySet().removeIf(key -> key%2 == 0); // removes the keys from the treeMap that have a remainder of 0 when divided by 2
     return;
   }
 
@@ -54,10 +55,8 @@ public class TreeProblems {
    */
 
   public boolean treesEqual(Map<Integer, String> tree1,Map<Integer, String> tree2 ) {
-
     // INSERT CODE HERE
-
-    return false;
+    return tree1.equals(tree2); // returns if tree1 is equal to tree2
 
   }
 

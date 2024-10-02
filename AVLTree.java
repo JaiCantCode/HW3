@@ -169,7 +169,7 @@ class LUC_AVLTree {
         int leftMin  = minValue(node.leftChild);
         int rightMin = minValue(node.rightChild);
 
-        return Math.max(value, Math.max(leftMin, rightMin));
+        return Math.min(value, Math.min(leftMin, rightMin)); // I found that this was doing max instead of min, so I fixed it
     }
 
 
@@ -340,12 +340,8 @@ class LUC_AVLTree {
      *
      *  @return node - new top of subtree, it possibly changed due to a rotation
      */
-
     private Node deleteElement(int value, Node node) {
-
-        /*
-         * ADD CODE HERE
-         * 
+        /* ADD CODE HERE
          * NOTE, that you should use the existing coded private methods
          * in this file, which include:
          *      - minValueNode,
@@ -356,15 +352,40 @@ class LUC_AVLTree {
          *      - RRRotation,
          *      - LRRotation,
          *      - RLRotation.
-         *
          * To understand what each of these methods do, see the method prologues and
          * code for each. You can also look at the method InsertElement, as it has do
          * do many of the same things as this method.
          */
-
+        if(node == null) return null; // Checks to see if tree is empty
+        if(value < node.value) { // Search left for value
+            node.leftChild = deleteElement(value, node.leftChild); // Traverse left
+            int bf = getBalanceFactor(node); // get balance factor for current node
+            if(Math.abs(bf) > 1) { // Determine if balancing is needed
+                bf = getBalanceFactor(node.rightChild); // Get balance factor for right child
+                if(bf < 0) node = RRRotation(node); // Determine the correct rotation based on balance factor value
+                else node = RLRotation(node);
+            }
+        }else if(node.value < value) { // Search right for value
+            node.rightChild = deleteElement(value, node.rightChild); // Traverse right
+            int bf = getBalanceFactor(node); // get balance factor for current node
+            if(Math.abs(bf) > 1) { // Determine if balancing is needed
+                bf = getBalanceFactor(node.leftChild);  // Get balance factor for left child
+                if(bf > 0) node = LLRotation(node); // Determine the correct rotation based on balance factor value
+                else node = LRRotation(node);
+            }
+        }else{ // Element that needs to be deleted is found
+            if(node.leftChild == null && node.rightChild == null) return null; // If no leafs are present, simple delete
+            if(node.leftChild != null && node.rightChild != null) { // If node has 2 leafs present
+                Node ins = minValueNode(node.rightChild); // Find the inorder successor node
+                int insVal = ins.value; // Save the value of the inorder successor node
+                node.rightChild = deleteElement(insVal, node.rightChild); // Delete the inorder successor node
+                node.value = insVal; // Make the current node's value the inorder successor node's value
+            }else if(node.rightChild != null) node = node.rightChild; // If node only has right child
+            else node = node.leftChild; // If node only has left child
+        }
+        node.height = (getMaxHeight( getHeight(node.leftChild), getHeight(node.rightChild))) + 1; // Re-adjust node height
         return node;
     }
-
 
     /**
      *  Method getBalance
@@ -383,7 +404,6 @@ class LUC_AVLTree {
 
         int leftSubTreeHeight  = getHeight(node.leftChild)  + 1;
         int rightSubTreeHeight = getHeight(node.rightChild) + 1;
-
         return leftSubTreeHeight - rightSubTreeHeight;
     }
 
